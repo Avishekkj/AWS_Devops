@@ -1,0 +1,72 @@
+Docker Networking & Container Management 🚀
+This guide documents key Docker networking commands, container management, and troubleshooting steps executed on a Unix instance. It provides a structured approach to managing containers across networks, verifying connectivity, and resolving common errors.
+
+Table of Contents
+Prerequisites
+
+Running Containers on the Default Network
+
+Creating and Using a Secure Network
+
+Switching a Container Back to the Default Network
+
+Troubleshooting Common Errors
+
+Checking Command History
+
+Prerequisites
+Ensure you have Docker installed and running on your Unix instance. If Docker is not installed, use:
+
+
+sudo apt update && sudo apt install docker.io -y
+sudo systemctl start docker
+sudo systemctl enable docker
+Running Containers on the Default Network
+By default, Docker assigns containers to the bridge network.
+
+Run Two Containers on the Default Network:
+
+docker run -dit --name container1 busybox
+docker run -dit --name container2 busybox
+Verify IP Addresses:
+
+docker inspect container1 | grep "IPAddress"
+docker inspect container2 | grep "IPAddress"
+Test Connectivity Between Containers:
+
+docker exec -it container1 ping -c 3 <container2_IP>
+Note: Containers on the default bridge network cannot communicate via IP unless explicitly connected using a custom bridge network.
+
+Creating and Using a Secure Network
+To isolate a container from the default network, create a custom Docker bridge network:
+
+Create a Secure Network:
+
+docker network create --driver bridge secure_net
+Run a Container on the Secure Network:
+
+docker run -dit --name secure_container --network secure_net busybox
+Verify the IP Address:
+
+
+docker inspect secure_container | grep "IPAddress"
+Test Connectivity (Expected to Fail)
+Containers in different networks cannot communicate unless explicitly connected.
+
+Switching a Container Back to the Default Network
+A container cannot change networks while running. Follow these steps:
+
+Disconnect from the Secure Network:
+
+docker stop secure_container
+docker network disconnect secure_net secure_container
+Reconnect to the Default Bridge Network:
+
+docker network connect bridge secure_container
+docker start secure_container
+
+Verify IP and Test Connectivity Again:
+
+docker inspect secure_container | grep "IPAddress"
+Troubleshooting Common Errors
+
